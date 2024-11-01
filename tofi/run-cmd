@@ -1,0 +1,27 @@
+### tofi/run-cmd
+# ╔╗╔┌─┐┬─┐┌┬┐┬┌─┐   ╔═╗
+# ║║║├─┤├┬┘││││└─┐───║╣ 
+# ╝╚╝┴ ┴┴└─┴ ┴┴└─┘   ╚═╝
+### Narmis-e Dotfiles for sway-minimal: https://github.com/narmis-e/sway-minimal
+
+prompt-text = " > "
+text-color = #FFFFFF
+prompt-color = #FFFFFF
+selection-background = #9A9996
+selection-background-padding = 0, 220
+selection-background-corner-radius = 0
+selection-color = #1e1e2e
+background-color = #1D1D1Dff
+border-color = #FFFFFF
+width = 302
+height = 90
+border-width = 1
+outline-width = 0
+padding-left = 12
+padding-top = 10
+result-spacing = 1
+num-results = 1
+font = Iosevka Nerd Font
+font-size = 12
+text-cursor=true
+default-result-background-padding = 0, -10, 0, 0
