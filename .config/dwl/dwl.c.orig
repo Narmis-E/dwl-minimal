@@ -76,6 +76,7 @@
 #define MIN(A, B)               ((A) < (B) ? (A) : (B))
 #define CLEANMASK(mask)         (mask & ~WLR_MODIFIER_CAPS)
 #define VISIBLEON(C, M)         ((M) && (C)->mon == (M) && ((C)->tags & (M)->tagset[(M)->seltags]))
+#define SVISIBLEON(C, M)        ((M) && (C)->mon && ((C)->tags & (M)->tagset[(M)->seltags]))
 #define LENGTH(X)               (sizeof X / sizeof X[0])
 #define END(A)                  ((A) + LENGTH(A))
 #define TAGMASK                 ((1u << TAGCOUNT) - 1)
@@ -252,6 +253,7 @@ static void arrange(Monitor *m);
 static void arrangelayer(Monitor *m, struct wl_list *list,
 		struct wlr_box *usable_area, int exclusive);
 static void arrangelayers(Monitor *m);
+static void attachclients(Monitor *m);
 static void autostartexec(void);
 static void axisnotify(struct wl_listener *listener, void *data);
 static void buttonpress(struct wl_listener *listener, void *data);
@@ -295,6 +297,7 @@ static void focusstack(const Arg *arg);
 static Client *focustop(Monitor *m);
 static void fullscreennotify(struct wl_listener *listener, void *data);
 static void gpureset(struct wl_listener *listener, void *data);
+static size_t getunusedtag(void);
 static void handlesig(int signo);
 static void incnmaster(const Arg *arg);
 static void inputdevice(struct wl_listener *listener, void *data);
@@ -484,7 +487,17 @@ applyrules(Client *c)
 			}
 		}
 	}
+
+	wl_list_for_each(m, &mons, link) {
+		// tag with different monitor selected by rules
+		if (m->tagset[m->seltags] & newtags) {
+			mon = m;
+			break;
+		}
+	}
+
 	setmon(c, mon, newtags);
+	attachclients(mon);
 }
 
 void
@@ -603,6 +616,45 @@ autostartexec(void) {
 		}
 		/* skip arguments */
 		while (*++p);
+	}
+}
+
+void
+attachclients(Monitor *m)
+{
+	Monitor *tm;
+	unsigned int utags = 0;
+	Client *c;
+	int rmons = 0;
+
+	if (m == NULL) {
+		return;
+	}
+
+	wl_list_for_each(tm, &mons, link) {
+		if (tm != m) {
+			utags |= tm->tagset[tm->seltags];
+		}
+	}
+
+	wl_list_for_each(c, &clients, link) {
+		if (SVISIBLEON(c, m)) {
+			/* if client is also visible on other tags that are displayed on
+			 * other monitors, remove these tags */
+			if (c->tags & utags) {
+				c->tags = c->tags & m->tagset[m->seltags];
+				rmons = 1;
+			}
+			setmon(c, m, c->tags);
+		}
+	}
+
+	if (rmons) {
+		wl_list_for_each(tm, &mons, link) {
+			if (tm != m) {
+				arrange(tm);
+			}
+		}
 	}
 }
 
@@ -786,6 +838,9 @@ closemon(Monitor *m)
 		if (c->mon == m)
 			setmon(c, selmon, c->tags);
 	}
+
+  m->tagset[0] = m->tagset[1] = 0;
+
 	focusclient(focustop(selmon), 1);
 	printstatus();
 }
@@ -1031,7 +1086,7 @@ createmon(struct wl_listener *listener, void *data)
 	/* Initialize monitor state using configured rules */
 	m->gaps = gaps;
 
-	m->tagset[0] = m->tagset[1] = 1;
+	m->tagset[0] = m->tagset[1] = (1<<getunusedtag()) & TAGMASK;
 	for (r = monrules; r < END(monrules); r++) {
 		if (!r->name || strstr(wlr_output->name, r->name)) {
 			m->m.x = r->x;
@@ -1500,7 +1555,7 @@ focustop(Monitor *m)
 {
 	Client *c;
 	wl_list_for_each(c, &fstack, flink) {
-		if (VISIBLEON(c, m))
+		if (SVISIBLEON(c, m))
 			return c;
 	}
 	return NULL;
@@ -1511,6 +1566,29 @@ fullscreennotify(struct wl_listener *listener, void *data)
 {
 	Client *c = wl_container_of(listener, c, fullscreen);
 	setfullscreen(c, client_wants_fullscreen(c));
+}
+
+size_t
+getunusedtag(void)
+{
+	size_t i = 0;
+	Monitor *m;
+	if (wl_list_empty(&mons)) {
+		return i;
+	}
+	for (i=0; i < TAGCOUNT; i++) {
+		int is_used = 0;
+		wl_list_for_each(m, &mons, link) {
+			if ((m->tagset[m->seltags] & (1<<i))) {
+				is_used = 1;
+			}
+		}
+
+		if (!is_used) {
+			return i;
+		}
+	}
+	return i;
 }
 
 void
@@ -2134,8 +2212,6 @@ printstatus(void)
 	wl_list_for_each(m, &mons, link) {
 		occ = urg = 0;
 		wl_list_for_each(c, &clients, link) {
-			if (c->mon != m)
-				continue;
 			occ |= c->tags;
 			if (c->isurgent)
 				urg |= c->tags;
@@ -2831,6 +2907,7 @@ startdrag(struct wl_listener *listener, void *data)
 void
 tag(const Arg *arg)
 {
+	Monitor *m;
 	Client *sel = focustop(selmon);
 	if (!sel || (arg->ui & TAGMASK) == 0)
 		return;
@@ -2838,15 +2915,25 @@ tag(const Arg *arg)
 	sel->tags = arg->ui & TAGMASK;
 	focusclient(focustop(selmon), 1);
 	arrange(selmon);
+	wl_list_for_each(m, &mons, link) {
+		attachclients(m);
+		arrange(m);
+	}
 	printstatus();
 }
 
 void
 tagmon(const Arg *arg)
 {
+	Monitor *m;
 	Client *sel = focustop(selmon);
-	if (sel)
+	if (sel) {
 		setmon(sel, dirtomon(arg->i), 0);
+		wl_list_for_each(m, &mons, link) {
+			arrange(m);
+		}
+		focusclient(focustop(sel->mon), 1);
+	}
 }
 
 void
@@ -2917,12 +3004,18 @@ togglegaps(const Arg *arg)
 void
 toggletag(const Arg *arg)
 {
+	Monitor *m;
 	uint32_t newtags;
 	Client *sel = focustop(selmon);
 	if (!sel || !(newtags = sel->tags ^ (arg->ui & TAGMASK)))
 		return;
 
+	wl_list_for_each(m, &mons, link)
+		if (m != selmon && newtags & m->tagset[m->seltags])
+			return;
+
 	sel->tags = newtags;
+	attachclients(selmon);
 	focusclient(focustop(selmon), 1);
 	arrange(selmon);
 	printstatus();
@@ -2931,11 +3024,17 @@ toggletag(const Arg *arg)
 void
 toggleview(const Arg *arg)
 {
+	Monitor *m;
 	uint32_t newtagset;
 	if (!(newtagset = selmon ? selmon->tagset[selmon->seltags] ^ (arg->ui & TAGMASK) : 0))
 		return;
 
+	wl_list_for_each(m, &mons, link)
+		if (m !=selmon && newtagset & m->tagset[m->seltags])
+			return;
+
 	selmon->tagset[selmon->seltags] = newtagset;
+	attachclients(selmon);
 	focusclient(focustop(selmon), 1);
 	arrange(selmon);
 	printstatus();
@@ -3039,6 +3138,9 @@ updatemons(struct wl_listener *listener, void *data)
 			continue;
 		config_head = wlr_output_configuration_head_v1_create(config, m->wlr_output);
 
+    if ((m->tagset[0] & TAGMASK) == 0 && (m->tagset[1] & TAGMASK) == 0)
+      m->tagset[0] = m->tagset[1] = (1 << getunusedtag()) & TAGMASK;
+
 		/* Get the effective monitor geometry to use for surfaces */
 		wlr_output_layout_get_box(output_layout, m->wlr_output, &m->m);
 		m->w = m->m;
@@ -3053,6 +3155,7 @@ updatemons(struct wl_listener *listener, void *data)
 			wlr_session_lock_surface_v1_configure(m->lock_surface, m->m.width, m->m.height);
 		}
 
+		attachclients(m);
 		/* Calculate the effective monitor geometry to use for clients */
 		arrangelayers(m);
 		/* Don't move clients to the left output when plugging monitors */
@@ -3123,13 +3226,45 @@ urgent(struct wl_listener *listener, void *data)
 void
 view(const Arg *arg)
 {
-	if (!selmon || (arg->ui & TAGMASK) == selmon->tagset[selmon->seltags])
+	Monitor *m, *origm = selmon;
+	unsigned int newtags;
+
+	if (!selmon || (arg->ui & TAGMASK) == selmon->tagset[selmon->seltags]) {
 		return;
-	selmon->seltags ^= 1; /* toggle sel tagset */
+	}
+
+	newtags = origm->tagset[origm->seltags ^ 1];
+
+	/* swap tags when trying to display a tag from another monitor */
+	if (arg->ui & TAGMASK) {
+		newtags = arg->ui & TAGMASK;
+	}
+	wl_list_for_each(m, &mons, link) {
+		if (m != origm && newtags & m->tagset[m->seltags]) {
+			/* prevent displaying all tags (MODKEY-0) when multiple monitors
+			 * are connected */
+			if (newtags & origm->tagset[origm->seltags]) {
+				return;
+			}
+			m->seltags ^= 1;
+			m->tagset[m->seltags] = origm->tagset[origm->seltags];
+			attachclients(m);
+			/* Beware: this changes selmon */
+			focusclient(focustop(m), 1);
+			arrange(m);
+			break;
+		}
+	}
+
+	origm->seltags ^= 1; /* toggle sel tagset */
 	if (arg->ui & TAGMASK)
-		selmon->tagset[selmon->seltags] = arg->ui & TAGMASK;
-	focusclient(focustop(selmon), 1);
-	arrange(selmon);
+		origm->tagset[origm->seltags] = arg->ui & TAGMASK;
+
+	/* Change selmon back to orig mon */
+	selmon = origm;
+	attachclients(origm);
+	focusclient(focustop(origm), 1);
+	arrange(origm);
 	printstatus();
 }
 

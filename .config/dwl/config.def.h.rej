@@ -1,19 +1,19 @@
 --- config.def.h
 +++ config.def.h
-@@ -46,7 +47,7 @@ static const MonitorRule monrules[] = {
+@@ -45,7 +44,7 @@ static const MonitorRule monrules[] = {
  	{ "eDP-1",    0.5f,  1,      2,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
  	*/
  	/* defaults */
--	{ NULL,       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-+	{ NULL,       0.64f, 1,      1,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+-	{ NULL,       0.64f, 1,      1,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
++	{ NULL,       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
  };
  
  /* keyboard */
-@@ -137,6 +138,7 @@ static const Key keys[] = {
+@@ -136,7 +135,6 @@ static const Key keys[] = {
  	{ MODKEY,                    XKB_KEY_t,          setlayout,      {.v = &layouts[0]} },
  	{ MODKEY,                    XKB_KEY_f,          setlayout,      {.v = &layouts[1]} },
  	{ MODKEY,                    XKB_KEY_m,          setlayout,      {.v = &layouts[2]} },
-+	{ MODKEY,                    XKB_KEY_s,          setlayout,      {.v = &layouts[3]} },
+-	{ MODKEY,                    XKB_KEY_s,          setlayout,      {.v = &layouts[3]} },
  	{ MODKEY,                    XKB_KEY_space,      setlayout,      {0} },
  	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_space,      togglefloating, {0} },
  	{ MODKEY,                    XKB_KEY_e,         togglefullscreen, {0} },

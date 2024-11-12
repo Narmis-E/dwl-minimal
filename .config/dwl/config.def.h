@@ -36,13 +36,12 @@ static const Layout layouts[] = {
 	{ "[]=",      tile },
 	{ "><>",      NULL },
 	{ "[M]",      monocle },
-	{ "@|@",      snail },
 };
 
 static const MonitorRule monrules[] = {
-	{ "eDP-2",       0.55f, 1,      1.5,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	{ "DP-2",       0.55f, 1,      1,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	{ "HDMI-A-1",       0.55f, 1,      1,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }
+	{ "eDP-2",       0.55f, 1,      1.5,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+	{ "DP-2",       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+	{ "HDMI-A-1",       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }
 };
 
 static const struct xkb_rule_names xkb_rules = {
