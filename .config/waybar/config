@@ -39,7 +39,7 @@
     	"exec": "sh ~/.config/waybar/scripts/cava.sh",
     	"format": "{}",
     	"tooltip": false,
-    	"on-click": "pkill waybar & waybar",
+    	"on-click": "pkill waybar && waybar",
     	"layer": "below",
     	"output": "all"
   },
