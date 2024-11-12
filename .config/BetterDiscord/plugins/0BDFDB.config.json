@@ -1,7 +1,7 @@
 {
 	"all": {
 		"changeLogs": {
-			"BDFDB": "3.8.1",
+			"BDFDB": "3.8.6",
 			"PluginRepo": "2.5.8",
 			"ThemeRepo": "2.5.8"
 		},
@@ -15,7 +15,7 @@
 			"useChromium": false
 		},
 		"hashes": {
-			"0BDFDB.data.json": "0b6bc6bd9fc424903719b2ec4dfa2c8d46a8d1b0",
+			"0BDFDB.data.json": "5429237abf2a7ce8c915fc7ae503cd46ee5a596d",
 			"0BDFDB.raw.css": "d54c1db8ea68d8dcc12b6ce688e277d5cad65856"
 		}
 	}

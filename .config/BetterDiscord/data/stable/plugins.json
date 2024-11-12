@@ -1,6 +1,6 @@
 {
-    "PluginRepo": true,
-    "BDFDB": true,
-    "ThemeRepo": true,
-    "Hide Channels": true
+    "BDFDB": false,
+    "Hide Channels": false,
+    "PluginRepo": false,
+    "ThemeRepo": false
 }
