@@ -24,6 +24,7 @@ static const char *const autostart[] = {
 	"waybar", NULL,
 	"swaync", NULL,
 	"/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1", NULL,
+	"/home/narmis/.local/bin/updatechecker.sh", NULL,
         NULL /* terminate */
 };
 
