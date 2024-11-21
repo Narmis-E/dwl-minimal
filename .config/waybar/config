@@ -5,7 +5,7 @@
     "spacing": 5,
 
     "modules-left": ["group/usage", "custom/cava-internal"],
-    "modules-center": ["custom/todo", "clock", "custom/notification"],
+    "modules-center": ["custom/todo", "clock", "custom/notification", "custom/updates"],
     "modules-right": ["wireplumber", "group/bat", "group/net", "tray"],
 
     "group/usage": {
@@ -24,7 +24,28 @@
     },
 
     "clock": {
-        "format": "{:%d.%m.%Y | %H:%M} "
+        "format": "{:%d.%m.%Y | %H:%M} ",
+	"tooltip-format": "<span font=\" Iosevka Nerd Font 10\"><big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt></span>",
+	"today-format": "<span color='#ff6699'><b><u>{}</u></b></span>",
+            "format-calendar": "<span color='#ecc6d9'><b>{}</b></span>",
+            "format-calendar-weeks": "<span color='#99ffdd'><b>S{:%V}</b></span>",
+            "format-calendar-weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+            "calendar-weeks-pos": "right",
+            "interval": 30,
+            "on-scroll": {
+                "calendar": 1
+            }
+    },
+
+    "custom/updates": {
+    	"format": "{} {icon}",
+    	"return-type": "json",
+    	"format-icons": {
+        	"has-updates": "󱍷 ",
+        	"updated": "󰂪 "
+    	},
+    	"exec-if": "which waybar-module-pacman-updates",
+    	"exec": "waybar-module-pacman-updates --interval-seconds 5 --network-interval-seconds 300"
     },
 
     "custom/todo": {
