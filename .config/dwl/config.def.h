@@ -87,12 +87,13 @@ static const char *scrotcmd[] = { "/home/narmis/.local/bin/screenshot.sh", "--ar
 
 static const char *notifcmd[]  =   { "swaync-client", "-t", "-sw" };
 
-static const char *brightness_up[]  =   { "brightnessctl", "set", "5%+" };
-static const char *brightness_down[]  = { "brightnessctl", "set", "5%-" };
+static const char *brightness_up[]  =   { "/home/narmis/.local/bin/brightness", "--inc" };
+static const char *brightness_down[]  = { "/home/narmis/.local/bin/brightness", "--dec" };
 
-static const char *volume_up[]  =   { "amixer", "-q", "sset", "Master", "5%+" };
-static const char *volume_down[]  = { "amixer", "-q", "sset", "Master", "5%-" };
-static const char *volume_mute[]  = { "amixer", "-q", "sset", "Master", "toggle" };
+static const char *volume_up[]  =   { "/home/narmis/.local/bin/volume", "--inc" };
+static const char *volume_down[]  = { "/home/narmis/.local/bin/volume", "--dec" };
+static const char *volume_mute[]  = { "/home/narmis/.local/bin/volume", "--toggle" };
+static const char *mic_mute[]  = { "/home/narmis/.local/bin/volume", "--toggle-mic" };
 
 static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_space,      spawn,          {.v = menucmd} },
@@ -100,7 +101,7 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_r,      	 spawn,          {.v = hzcmd} },
 	{ MODKEY,                    XKB_KEY_x,      	 spawn,          {.v = powermenucmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_N, 	 spawn,          {.v = notifcmd} },
-	{ MODKEY,		     XKB_KEY_Print,	 spawn,		 {.v = scrotcmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S, 	 spawn,          {.v = scrotcmd} },
 	{ MODKEY,		     XKB_KEY_Return,     spawn,          {.v = termcmd} },
 	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = browcmd} },
 	{ MODKEY,		     XKB_KEY_p,		 spawn,		 {.v = pickercmd} },
@@ -109,6 +110,7 @@ static const Key keys[] = {
 	{ 0,              XKB_KEY_XF86AudioLowerVolume,  spawn, 	 {.v = volume_down } },
 	{ 0,    	  XKB_KEY_XF86AudioRaiseVolume,  spawn, 	 {.v = volume_up } },
 	{ 0,              XKB_KEY_XF86AudioMute,	 spawn, 	 {.v = volume_mute } },
+	{ 0,              XKB_KEY_XF86AudioMicMute,	 spawn, 	 {.v = mic_mute } },
 	{ MODKEY,                    XKB_KEY_j,          focusstack,     {.i = +1} },
 	{ MODKEY,                    XKB_KEY_k,          focusstack,     {.i = -1} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_J,          movestack,      {.i = +1} },
