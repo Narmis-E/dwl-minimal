@@ -4,9 +4,9 @@
     "height": 25,
     "spacing": 5,
 
-    "modules-left": ["group/usage", "custom/cava-internal"],
-    "modules-center": ["custom/todo", "clock", "custom/notification", "custom/updates"],
-    "modules-right": ["wireplumber", "group/bat", "group/net", "tray"],
+    "modules-left": ["custom/updates", "group/usage", "custom/cava-internal"],
+    "modules-center": ["custom/todo", "clock", "custom/notification", "custom/dexcom"],
+    "modules-right": ["group/bat", "wireplumber", "group/net", "tray"],
 
     "group/usage": {
         "orientation": "horizontal",
@@ -46,6 +46,14 @@
     	},
     	"exec-if": "which waybar-module-pacman-updates",
     	"exec": "waybar-module-pacman-updates --interval-seconds 5 --network-interval-seconds 300"
+    },
+
+    "custom/dexcom": {
+        "format": "<span color='red'></span> {}",
+        "return-type": "json",
+        "exec": "python3 ~/.local/bin/dexbar.py",
+        "interval": 10,
+        "tooltip": "true"
     },
 
     "custom/todo": {

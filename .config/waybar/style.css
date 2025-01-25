@@ -37,6 +37,7 @@
 #usage,
 #custom-cava-internal,
 #custom-updates,
+#custom-dexcom,
 #net {
     background-color: @background-alt;
     border-radius: 0px;
@@ -45,13 +46,16 @@
 }
 
 #tray {
-    margin-right: 5px;
-
+    margin-right: 7px;
+    margin-left: -8px;
 }
 
 #wireplumber {
-    margin-right: -1px;
+    margin-left: -2px;
+}
 
+#custom-updates {
+    margin-right: -5px;
 }
 
 #battery,
