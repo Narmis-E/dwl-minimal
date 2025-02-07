@@ -105,6 +105,7 @@
         "bat": "BAT0",
         "interval": 60,
         "format": "{icon}  {capacity}%",
+	"format-charging": "󰂄 {capacity}%",
         "format-icons": ["\uf244", "\uf243", "\uf242", "\uf241", "\uf240"],
     },
 
