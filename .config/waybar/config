@@ -4,8 +4,8 @@
     "height": 25,
     "spacing": 5,
 
-    "modules-left": ["custom/updates", "group/usage", "custom/cava-internal"],
-    "modules-center": ["custom/todo", "clock", "custom/notification", "custom/dexcom"],
+    "modules-left": ["custom/updates", "group/usage"],
+    "modules-center": ["custom/todo", "custom/pomodoro", "clock", "custom/notification", "custom/dexcom"],
     "modules-right": ["group/bat", "wireplumber", "group/net", "tray"],
 
     "group/usage": {
@@ -21,6 +21,17 @@
     "group/net": {
         "orientation": "horizontal",
         "modules": ["network"]
+    },
+
+    "custom/pomodoro": {
+    "format": "{} ",
+    "exec": "python3 ~/.config/waybar/scripts/pomodoro.py",
+    "interval": 1,
+    "return-type": "json",
+    "on-click": "sleep 0.1 && gnome-pomodoro",
+    "on-click-right": "sleep 0.1 && gnome-pomodoro --pause-resume",
+    "on-click-middle": "sleep 0.1 && gnome-pomodoro --skip",
+    "tooltip": "true"
     },
 
     "clock": {
@@ -45,22 +56,23 @@
         	"updated": "󰂪 "
     	},
     	"exec-if": "which waybar-module-pacman-updates",
-    	"exec": "waybar-module-pacman-updates --interval-seconds 5 --network-interval-seconds 300"
+    	"exec": "waybar-module-pacman-updates --interval-seconds 5 --network-interval-seconds 300",
+	"on-click": "sleep 0.1 && kitty -e sudo pacman -Syu"
     },
 
     "custom/dexcom": {
         "format": "<span color='red'></span> {}",
         "return-type": "json",
-        "exec": "python3 ~/.local/bin/dexbar.py",
+        "exec": "sleep 0.1 && python3 ~/.local/bin/dexbar.py",
         "interval": 10,
         "tooltip": "true"
     },
 
     "custom/todo": {
-        "exec": "~/.local/bin/todo.sh",
+        "exec": "sleep 0.1 && ~/.local/bin/todo.sh",
         "return-type": "json",
-        "format": "{} ",
-        "on-click": "kitty -e nvim ~/todo.txt",
+        "format": "{}",
+        "on-click": "sleep 0.1 && kitty -e nvim ~/todo.txt",
         "interval": 5,
     },
 
@@ -88,7 +100,7 @@
 	  },
     	"return-type": "json",
     	"exec-if": "which swaync-client",
-    	"exec": "swaync-client -swb",
+    	"exec": "sleep 0.1 && swaync-client -swb",
     	"on-click": "swaync-client -t -sw",
     	"on-click-right": "swaync-client -d -sw",
     	"escape": true
@@ -98,7 +110,8 @@
         "format": "\udb81\udd7e {volume}%",
 	"format-muted": "󰝟",
         "max-volume": 100,
-        "scroll-step": 5
+        "scroll-step": 5,
+	"on-click": "sleep 0.1 && pactl set-sink-mute @DEFAULT_SINK@ toggle"
     },
 
     "battery": {

@@ -24,6 +24,7 @@ static const char *const autostart[] = {
 	"waybar", NULL,
 	"swaync", NULL,
 	"/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1", NULL,
+	"/home/narmis/.local/bin/updatechecker.sh", NULL,
         NULL /* terminate */
 };
 
@@ -36,13 +37,12 @@ static const Layout layouts[] = {
 	{ "[]=",      tile },
 	{ "><>",      NULL },
 	{ "[M]",      monocle },
-	{ "@|@",      snail },
 };
 
 static const MonitorRule monrules[] = {
-	{ "eDP-2",       0.55f, 1,      1.5,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	{ "DP-2",       0.55f, 1,      1,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	{ "HDMI-A-1",       0.55f, 1,      1,    &layouts[3], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }
+	{ "eDP-2",       0.55f, 1,      1.5,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+	{ "DP-2",       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
+	{ "HDMI-A-1",       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }
 };
 
 static const struct xkb_rule_names xkb_rules = {
@@ -80,35 +80,41 @@ static const char *termcmd[] = { "kitty", NULL };
 static const char *menucmd[] = { "fuzzel", NULL };
 static const char *powermenucmd[] = { "/home/narmis/.local/bin/powermenu.sh", NULL };
 static const char *hzcmd[] = { "/home/narmis/.local/bin/hz.sh", NULL };
+static const char *batconscmd[] = { "/home/narmis/.local/bin/battery_conservation.sh", NULL };
 static const char *kbdcmd[] = { "/home/narmis/.local/bin/kbd-backlight.sh", NULL };
 static const char *browcmd[] = { "firefox", NULL };
+static const char *filecmd[] = { "thunar", NULL };
 static const char *pickercmd[] = { "hyprpicker", "-a" };
 static const char *scrotcmd[] = { "/home/narmis/.local/bin/screenshot.sh", "--area" };
 
 static const char *notifcmd[]  =   { "swaync-client", "-t", "-sw" };
 
-static const char *brightness_up[]  =   { "brightnessctl", "set", "5%+" };
-static const char *brightness_down[]  = { "brightnessctl", "set", "5%-" };
+static const char *brightness_up[]  =   { "/home/narmis/.local/bin/brightness", "--inc" };
+static const char *brightness_down[]  = { "/home/narmis/.local/bin/brightness", "--dec" };
 
-static const char *volume_up[]  =   { "amixer", "-q", "sset", "Master", "5%+" };
-static const char *volume_down[]  = { "amixer", "-q", "sset", "Master", "5%-" };
-static const char *volume_mute[]  = { "amixer", "-q", "sset", "Master", "toggle" };
+static const char *volume_up[]  =   { "/home/narmis/.local/bin/volume", "--inc" };
+static const char *volume_down[]  = { "/home/narmis/.local/bin/volume", "--dec" };
+static const char *volume_mute[]  = { "/home/narmis/.local/bin/volume", "--toggle" };
+static const char *mic_mute[]  = { "/home/narmis/.local/bin/volume", "--toggle-mic" };
 
 static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_space,      spawn,          {.v = menucmd} },
 	{ MODKEY,                    XKB_KEY_z,	         spawn,          {.v = kbdcmd} },
 	{ MODKEY,                    XKB_KEY_r,      	 spawn,          {.v = hzcmd} },
+	{ MODKEY,                    XKB_KEY_b,      	 spawn,          {.v = batconscmd} },
 	{ MODKEY,                    XKB_KEY_x,      	 spawn,          {.v = powermenucmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_N, 	 spawn,          {.v = notifcmd} },
-	{ MODKEY,		     XKB_KEY_Print,	 spawn,		 {.v = scrotcmd} },
+	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S, 	 spawn,          {.v = scrotcmd} },
 	{ MODKEY,		     XKB_KEY_Return,     spawn,          {.v = termcmd} },
 	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = browcmd} },
+	{ MODKEY,		     XKB_KEY_a,		 spawn,		 {.v = filecmd} },
 	{ MODKEY,		     XKB_KEY_p,		 spawn,		 {.v = pickercmd} },
 	{ 0,              XKB_KEY_XF86MonBrightnessUp,   spawn, 	 {.v = brightness_up } },
 	{ 0,    	  XKB_KEY_XF86MonBrightnessDown, spawn, 	 {.v = brightness_down } },
 	{ 0,              XKB_KEY_XF86AudioLowerVolume,  spawn, 	 {.v = volume_down } },
 	{ 0,    	  XKB_KEY_XF86AudioRaiseVolume,  spawn, 	 {.v = volume_up } },
 	{ 0,              XKB_KEY_XF86AudioMute,	 spawn, 	 {.v = volume_mute } },
+	{ 0,              XKB_KEY_XF86AudioMicMute,	 spawn, 	 {.v = mic_mute } },
 	{ MODKEY,                    XKB_KEY_j,          focusstack,     {.i = +1} },
 	{ MODKEY,                    XKB_KEY_k,          focusstack,     {.i = -1} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_J,          movestack,      {.i = +1} },

@@ -14,6 +14,7 @@ static const float focuscolor[]            = COLOR(0x7F7F7Fff);
 static const float urgentcolor[]           = COLOR(0xff0000ff);
 static const char *cursor_theme            = "Breeze_Snow";
 static const char cursor_size[]            = "24"; /* Make sure it's a valid integer, otherwise things will break */
+static const int respect_monitor_reserved_area = 0;  /* 1 to monitor center while respecting the monitor's reserved area, 0 to monitor center */
 static const float fullscreen_bg[]         = {0.1f, 0.1f, 0.1f, 1.0f};
 #define TAGCOUNT (9)
 static int log_level = WLR_ERROR;
@@ -29,9 +30,8 @@ static const char *const autostart[] = {
 };
 
 static const Rule rules[] = {
-	{ "Gimp_EXAMPLE",     NULL,       0,            1,           -1 },
-	{ "firefox_EXAMPLE",  NULL,       1 << 8,       0,           -1 },
-};
+	/* app_id             title       tags mask     isfloating   monitor   x   y   width   height */
+	{ "Gimp_EXAMPLE",     NULL,       0,            1,           -1,       0,  0,  1000,   0.75 }, /* Start on currently visible tags floating, not tiled */};
 
 static const Layout layouts[] = {
 	{ "[]=",      tile },
@@ -41,8 +41,7 @@ static const Layout layouts[] = {
 
 static const MonitorRule monrules[] = {
 	{ "eDP-2",       0.55f, 1,      1.5,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	{ "DP-2",       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 },
-	{ "HDMI-A-1",       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   -1,  -1 }
+	{ "DP-2",       0.55f, 1,      1,    &layouts[0], WL_OUTPUT_TRANSFORM_NORMAL,   1,  -1 },
 };
 
 static const struct xkb_rule_names xkb_rules = {
@@ -80,8 +79,10 @@ static const char *termcmd[] = { "kitty", NULL };
 static const char *menucmd[] = { "fuzzel", NULL };
 static const char *powermenucmd[] = { "/home/narmis/.local/bin/powermenu.sh", NULL };
 static const char *hzcmd[] = { "/home/narmis/.local/bin/hz.sh", NULL };
+static const char *batconscmd[] = { "/home/narmis/.local/bin/battery_conservation.sh", NULL };
 static const char *kbdcmd[] = { "/home/narmis/.local/bin/kbd-backlight.sh", NULL };
 static const char *browcmd[] = { "firefox", NULL };
+static const char *filecmd[] = { "thunar", NULL };
 static const char *pickercmd[] = { "hyprpicker", "-a" };
 static const char *scrotcmd[] = { "/home/narmis/.local/bin/screenshot.sh", "--area" };
 
@@ -99,11 +100,13 @@ static const Key keys[] = {
 	{ MODKEY,                    XKB_KEY_space,      spawn,          {.v = menucmd} },
 	{ MODKEY,                    XKB_KEY_z,	         spawn,          {.v = kbdcmd} },
 	{ MODKEY,                    XKB_KEY_r,      	 spawn,          {.v = hzcmd} },
+	{ MODKEY,                    XKB_KEY_b,      	 spawn,          {.v = batconscmd} },
 	{ MODKEY,                    XKB_KEY_x,      	 spawn,          {.v = powermenucmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_N, 	 spawn,          {.v = notifcmd} },
 	{ MODKEY|WLR_MODIFIER_SHIFT, XKB_KEY_S, 	 spawn,          {.v = scrotcmd} },
 	{ MODKEY,		     XKB_KEY_Return,     spawn,          {.v = termcmd} },
 	{ MODKEY,		     XKB_KEY_w,		 spawn,		 {.v = browcmd} },
+	{ MODKEY,		     XKB_KEY_a,		 spawn,		 {.v = filecmd} },
 	{ MODKEY,		     XKB_KEY_p,		 spawn,		 {.v = pickercmd} },
 	{ 0,              XKB_KEY_XF86MonBrightnessUp,   spawn, 	 {.v = brightness_up } },
 	{ 0,    	  XKB_KEY_XF86MonBrightnessDown, spawn, 	 {.v = brightness_down } },

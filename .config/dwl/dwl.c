@@ -234,6 +234,10 @@ typedef struct {
 	uint32_t tags;
 	int isfloating;
 	int monitor;
+	int x;
+	int y;
+	float w;
+	float h;
 } Rule;
 
 typedef struct {
@@ -468,6 +472,9 @@ applyrules(Client *c)
 	int i;
 	const Rule *r;
 	Monitor *mon = selmon, *m;
+	int newwidth, newheight, newx, newy;
+	int apply_resize = 0;
+	struct wlr_box b;
 
 	c->isfloating = client_is_float_type(c);
 	appid = client_get_appid(c);
@@ -483,18 +490,36 @@ applyrules(Client *c)
 				if (r->monitor == i++)
 					mon = m;
 			}
+			if (c->isfloating || !mon->lt[mon->sellt]->arrange) {
+				b = respect_monitor_reserved_area ? mon->w : mon->m;
+				newwidth = (int)round(r->w ? (r->w <= 1 ? b.width * r->w : r->w) : c->geom.width);
+				newheight = (int)round(r->h ? (r->h <= 1 ? b.height * r->h : r->h) : c->geom.height);
+				newx = (int)round(r->x ? (r->x <= 1 ? b.width * r->x + b.x : r->x + b.x) : c->geom.x);
+				newy = (int)round(r->y ? (r->y <= 1 ? b.height * r->y + b.y : r->y + b.y) : c->geom.y);
+				apply_resize = 1;
+			}
 		}
 	}
 
 	wl_list_for_each(m, &mons, link) {
-		// tag with different monitor selected by rules
 		if (m->tagset[m->seltags] & newtags) {
 			mon = m;
 			break;
 		}
 	}
-
 	setmon(c, mon, newtags);
+
+	if (apply_resize) {
+		/* Fix: Define struct wlr_box separately */
+		struct wlr_box resize_box = {
+			.x = newx,
+			.y = newy,
+			.width = newwidth,
+			.height = newheight,
+		};
+		resize(c, resize_box, 1);
+	}
+
 	attachclients(mon);
 }
 
